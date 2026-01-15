@@ -1,0 +1,81 @@
+:root {
+  /* Premium Dark Theme Palette */
+  --bg-app: #0a0a0c;        /* Deepest obsidian */
+  --bg-panel: #131316;      /* Slightly lighter for sidebars */
+  --bg-card: #1c1c21;       /* Card background */
+  --bg-hover: #2a2a30;      /* Hover state */
+  
+  --accent-primary: #6d28d9; /* Deep Purple */
+  --accent-glow: #8b5cf6;    /* Lighter Purple for glows */
+  --accent-secondary: #06b6d4; /* Cyan for tech accents */
+  
+  --text-main: #ffffff;
+  --text-muted: #a1a1aa;
+  
+  --border-subtle: #27272a;
+  --border-highlight: #3f3f46;
+  
+  /* Spacing & Layout */
+  --sidebar-width: 320px;
+  --header-height: 60px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  
+  /* Animation */
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-app);
+  color: var(--text-main);
+  min-height: 100vh;
+  overflow: hidden; /* App-like feel */
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  color: inherit;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-highlight);
+}
+
+/* Utilities */
+.glass {
+  background: rgba(19, 19, 22, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
