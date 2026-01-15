@@ -1,16 +1,33 @@
 import React from 'react';
 import { ImageStage } from './ImageStage';
 import { HistoryRail } from './HistoryRail';
+import { StudioControls } from './StudioControls';
 
-export function Studio({ currentImage, isGenerating, history }) {
+export function Studio({
+    prompt, setPrompt,
+    aspectRatio, setAspectRatio,
+    isGenerating, onGenerate,
+    currentImage, history, onSelectHistory
+}) {
     return (
-        <>
-            <div className="stage-content">
-                <ImageStage currentImage={currentImage} isGenerating={isGenerating} />
+        <div className="studio-layout">
+            <div className="studio-main">
+                <StudioControls
+                    prompt={prompt}
+                    setPrompt={setPrompt}
+                    aspectRatio={aspectRatio}
+                    setAspectRatio={setAspectRatio}
+                    isGenerating={isGenerating}
+                    onGenerate={onGenerate}
+                />
+                <div className="stage-wrapper">
+                    <ImageStage currentImage={currentImage} isGenerating={isGenerating} />
+                </div>
             </div>
-            <div className="history-panel glass">
-                <HistoryRail history={history} />
-            </div>
-        </>
+
+            <aside className="right-sidebar glass">
+                <HistoryRail history={history} onSelect={onSelectHistory} />
+            </aside>
+        </div>
     );
 }

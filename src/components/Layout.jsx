@@ -3,22 +3,14 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import '../App.css';
 
-export function Layout({
-    prompt, setPrompt,
-    isGenerating, onGenerate
-}) {
+export function Layout() {
     return (
         <div className="layout-grid">
             <aside className="sidebar-panel glass">
-                <Sidebar
-                    prompt={prompt}
-                    setPrompt={setPrompt}
-                    onGenerate={onGenerate}
-                    isGenerating={isGenerating}
-                />
+                <Sidebar />
             </aside>
 
-            <main className="main-stage">
+            <main className="main-content">
                 <Outlet />
             </main>
         </div>
