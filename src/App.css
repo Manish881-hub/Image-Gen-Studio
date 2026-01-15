@@ -59,25 +59,7 @@
   letter-spacing: 0.05em;
 }
 
-.text-input {
-  width: 100%;
-  padding: 1rem;
-  border-radius: var(--radius-md);
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-main);
-  font-family: inherit;
-  resize: none;
-  transition: all 0.2s;
-  min-height: 120px;
-}
-
-.text-input:focus {
-  outline: none;
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 2px rgba(109, 40, 217, 0.2);
-  background: rgba(0, 0, 0, 0.4);
-}
+/* Legacy text-input styles removed */
 
 .ratio-grid {
   display: grid;

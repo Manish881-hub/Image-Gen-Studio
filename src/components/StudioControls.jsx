@@ -1,13 +1,14 @@
 import React from 'react';
 import { Sparkles, Monitor, Maximize, Smartphone } from 'lucide-react';
+import { Textarea } from "@/components/ui/textarea";
 
 export function StudioControls({ prompt, setPrompt, onGenerate, isGenerating, aspectRatio, setAspectRatio }) {
     return (
         <div className="studio-controls">
             <div className="control-section">
                 <label className="input-label">Prompt</label>
-                <textarea
-                    className="text-input prompt-area"
+                <Textarea
+                    className="prompt-area bg-black/20 border-white/10 resize-none h-[100px]"
                     placeholder="Describe your imagination..."
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}
