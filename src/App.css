@@ -1,27 +1,12 @@
-/* Layout Grid */
-.layout-grid {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  background: radial-gradient(circle at 10% 20%, #1a1a2e 0%, var(--bg-app) 80%);
-}
+/* Layout Grid - Removed, replaced by Shadcn SidebarProvider */
 
-.sidebar-panel {
-  width: var(--sidebar-width);
-  height: 100%;
-  border-right: 1px solid var(--border-subtle);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem;
-  z-index: 10;
-}
-
-.main-stage {
+.main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  height: 100vh;
 }
 
 .stage-content {
@@ -47,18 +32,7 @@
   background: var(--bg-panel);
 }
 
-/* Sidebar */
-.sidebar-content {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.sidebar-header {
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
+/* Old Sidebar styles removed */
 
 .logo-badge {
   display: flex;
@@ -305,38 +279,11 @@
   }
 }
 
-/* Responsive Design */
+/* Responsive Design Overrides might be needed */
 @media (max-width: 768px) {
-  .layout-grid {
-    flex-direction: column;
-    overflow-y: auto;
-    height: auto;
-    min-height: 100vh;
-  }
-
-  .sidebar-panel {
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .main-stage {
-    min-height: 60vh;
-  }
-
-  .stage-content {
-    padding: 1rem;
-  }
-
-  .generated-image {
-    max-height: 50vh;
-  }
-
-  .history-panel {
-    display: none;
-  }
+  /* ... */
 }
+
 
 /* Image Overlay & Actions */
 .image-overlay {
