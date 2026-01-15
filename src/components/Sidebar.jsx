@@ -1,5 +1,7 @@
 import React from 'react';
-import { Sparkles, Settings, Smartphone, Monitor, Maximize } from 'lucide-react';
+import { NavLink } from 'react-router-dom';
+import { Sparkles, Monitor, Maximize, Smartphone, LayoutDashboard, UserCircle, MessageSquare } from 'lucide-react';
+
 
 export function Sidebar({ prompt, setPrompt, onGenerate, isGenerating }) {
     return (
@@ -11,6 +13,43 @@ export function Sidebar({ prompt, setPrompt, onGenerate, isGenerating }) {
                 </div>
             </div>
 
+
+            <div className="sidebar-section">
+                <nav className="nav-menu">
+                    <NavLink
+                        to="/"
+                        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                        end
+                    >
+                        <Sparkles size={18} />
+                        <span>Studio</span>
+                    </NavLink>
+                    <NavLink
+                        to="/dashboard"
+                        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <LayoutDashboard size={18} />
+                        <span>Dashboard</span>
+                    </NavLink>
+                    <NavLink
+                        to="/chat"
+                        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <MessageSquare size={18} />
+                        <span>Chat</span>
+                    </NavLink>
+                    <NavLink
+                        to="/profile"
+                        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+                    >
+                        <UserCircle size={18} />
+                        <span>Profile</span>
+                    </NavLink>
+                </nav>
+            </div>
+
+            <div className="sidebar-separator" />
+
             <div className="sidebar-section">
                 <label className="input-label">Prompt</label>
                 <textarea
@@ -20,6 +59,7 @@ export function Sidebar({ prompt, setPrompt, onGenerate, isGenerating }) {
                     onChange={(e) => setPrompt(e.target.value)}
                 />
             </div>
+
 
             <div className="sidebar-section">
                 <label className="input-label">Aspect Ratio</label>

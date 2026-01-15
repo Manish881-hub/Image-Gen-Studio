@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from './components/Layout';
+import { Studio } from './components/Studio';
+import { Dashboard } from './components/Dashboard';
+import { Profile } from './components/Profile';
+import { Chat } from './components/Chat';
 import './App.css';
 
 function App() {
@@ -33,16 +38,31 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      <Layout
-        prompt={prompt}
-        setPrompt={setPrompt}
-        isGenerating={isGenerating}
-        onGenerate={handleGenerate}
-        currentImage={currentImage}
-        history={history}
-      />
-    </div>
+    <BrowserRouter>
+      <div className="app-container">
+        <Routes>
+          <Route path="/" element={
+            <Layout
+              prompt={prompt}
+              setPrompt={setPrompt}
+              isGenerating={isGenerating}
+              onGenerate={handleGenerate}
+            />
+          }>
+            <Route index element={
+              <Studio
+                currentImage={currentImage}
+                isGenerating={isGenerating}
+                history={history}
+              />
+            } />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="chat" element={<Chat />} />
+          </Route>
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
