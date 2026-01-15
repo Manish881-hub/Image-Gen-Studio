@@ -1,27 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
 :root {
   /* Premium Dark Theme Palette */
-  --bg-app: #0a0a0c;        /* Deepest obsidian */
-  --bg-panel: #131316;      /* Slightly lighter for sidebars */
-  --bg-card: #1c1c21;       /* Card background */
-  --bg-hover: #2a2a30;      /* Hover state */
-  
-  --accent-primary: #6d28d9; /* Deep Purple */
-  --accent-glow: #8b5cf6;    /* Lighter Purple for glows */
-  --accent-secondary: #06b6d4; /* Cyan for tech accents */
-  
+  --bg-app: #0a0a0c;
+  /* Deepest obsidian */
+  --bg-panel: #131316;
+  /* Slightly lighter for sidebars */
+  --bg-card: #1c1c21;
+  /* Card background */
+  --bg-hover: #2a2a30;
+  /* Hover state */
+
+  --accent-primary: #6d28d9;
+  /* Deep Purple */
+  --accent-glow: #8b5cf6;
+  /* Lighter Purple for glows */
+  --accent-secondary: #06b6d4;
+  /* Cyan for tech accents */
+
   --text-main: #ffffff;
   --text-muted: #a1a1aa;
-  
+
   --border-subtle: #27272a;
   --border-highlight: #3f3f46;
-  
+
   /* Spacing & Layout */
   --sidebar-width: 320px;
   --header-height: 60px;
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 20px;
-  
+
   /* Animation */
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
@@ -38,7 +84,8 @@ body {
   background-color: var(--bg-app);
   color: var(--text-main);
   min-height: 100vh;
-  overflow: hidden; /* App-like feel */
+  overflow: hidden;
+  /* App-like feel */
   -webkit-font-smoothing: antialiased;
 }
 
@@ -55,13 +102,16 @@ button {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--border-subtle);
   border-radius: 4px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--border-highlight);
 }
