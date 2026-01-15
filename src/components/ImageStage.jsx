@@ -1,4 +1,5 @@
 import React from 'react';
+import { Download, Share2 } from 'lucide-react';
 
 export function ImageStage({ currentImage, isGenerating }) {
     return (
@@ -10,9 +11,16 @@ export function ImageStage({ currentImage, isGenerating }) {
                 </div>
             ) : currentImage ? (
                 <div className="image-container tilt-effect">
-                    <img src={currentImage} alt="Generated result" className="generated-image" />
-                    <div className="image-actions">
-                        {/* Actions overlay */}
+                    <img src={currentImage.url} alt={currentImage.prompt} className="generated-image" />
+                    <div className="image-overlay">
+                        <div className="action-bar glass">
+                            <button className="icon-btn" title="Download" onClick={() => window.open(currentImage.url, '_blank')}>
+                                <Download size={20} />
+                            </button>
+                            <button className="icon-btn" title="Share">
+                                <Share2 size={20} />
+                            </button>
+                        </div>
                     </div>
                 </div>
             ) : (

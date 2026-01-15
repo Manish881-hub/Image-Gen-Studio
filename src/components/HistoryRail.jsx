@@ -1,20 +1,20 @@
 import React from 'react';
 import { History } from 'lucide-react';
 
-export function HistoryRail({ history }) {
+export function HistoryRail({ history, onSelect }) {
     return (
-        <div className="history-container">
-            <div className="history-label">
-                <History size={14} /> <span>Recent</span>
+        <div className="history-sidebar-content">
+            <div className="history-header">
+                <History size={16} /> <span>History</span>
             </div>
-            <div className="history-scroll">
-                {history.map((img, idx) => (
-                    <div key={idx} className="history-item">
-                        <img src={img} alt={`History ${idx}`} />
+            <div className="history-list">
+                {history.map((img) => (
+                    <div key={img.id} className="history-item" onClick={() => onSelect(img)}>
+                        <img src={img.url} alt={img.prompt} title={img.prompt} />
                     </div>
                 ))}
                 {history.length === 0 && (
-                    <div className="history-placeholder">No history</div>
+                    <div className="history-placeholder">No recent dreams</div>
                 )}
             </div>
         </div>
