@@ -6,6 +6,7 @@ import { Dashboard } from './components/Dashboard';
 import { Profile } from './components/Profile';
 import { Chat } from './components/Chat';
 import './App.css';
+import { ThemeProvider } from "./components/theme-provider"
 
 function App() {
 
@@ -53,30 +54,32 @@ function App() {
   };
 
   return (
-    <BrowserRouter>
-      <div className="app-container">
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={
-              <Studio
-                prompt={prompt}
-                setPrompt={setPrompt}
-                aspectRatio={aspectRatio}
-                setAspectRatio={setAspectRatio}
-                onGenerate={handleGenerate}
-                currentImage={currentImage}
-                isGenerating={isGenerating}
-                history={history}
-                onSelectHistory={handleSelectHistory}
-              />
-            } />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="chat" element={<Chat />} />
-          </Route>
-        </Routes>
-      </div>
-    </BrowserRouter>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <BrowserRouter>
+        <div className="app-container">
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={
+                <Studio
+                  prompt={prompt}
+                  setPrompt={setPrompt}
+                  aspectRatio={aspectRatio}
+                  setAspectRatio={setAspectRatio}
+                  onGenerate={handleGenerate}
+                  currentImage={currentImage}
+                  isGenerating={isGenerating}
+                  history={history}
+                  onSelectHistory={handleSelectHistory}
+                />
+              } />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="chat" element={<Chat />} />
+            </Route>
+          </Routes>
+        </div>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
