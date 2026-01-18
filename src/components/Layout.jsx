@@ -20,17 +20,6 @@ export function Layout() {
                             <SidebarTrigger />
                         </div>
 
-                        {/* User profile in top-right corner */}
-                        <div className="absolute top-4 right-4 z-50">
-                            <UserButton
-                                appearance={{
-                                    elements: {
-                                        avatarBox: "w-9 h-9"
-                                    }
-                                }}
-                            />
-                        </div>
-
                         <Outlet />
                     </main>
                 </SidebarProvider>
