@@ -12,7 +12,8 @@ export function Chat({ currentImage }) {
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [apiKey, setApiKey] = useState(() => localStorage.getItem('openrouter_key') || '');
+    // Initialize with env var if available, otherwise check localStorage
+    const [apiKey, setApiKey] = useState(() => import.meta.env.VITE_OPENROUTER_API_KEY || localStorage.getItem('openrouter_key') || '');
     const [showSettings, setShowSettings] = useState(!apiKey);
 
     const handleSaveKey = (e) => {
