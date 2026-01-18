@@ -56,7 +56,7 @@ export function Chat({ currentImage }) {
                     "X-Title": "AetherStudio"
                 },
                 body: JSON.stringify({
-                    "model": "allenai/molmo-2-8b:free",
+                    "model": "nvidia/nemotron-nano-12b-v2-vl:free",
                     "messages": [
                         ...messages.filter(m => m.role !== 'error').map(m => ({
                             role: m.role === 'bot' ? 'assistant' : 'user',
