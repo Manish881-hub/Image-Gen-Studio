@@ -8,7 +8,7 @@ export function StudioControls({ prompt, setPrompt, onGenerate, isGenerating, as
             <div className="control-section">
                 <label className="input-label">Prompt</label>
                 <Textarea
-                    className="prompt-area bg-black/20 border-white/10 resize-none h-[100px]"
+                    className="prompt-area resize-none h-[100px]"
                     placeholder="Describe your imagination..."
                     value={prompt}
                     onChange={(e) => setPrompt(e.target.value)}

@@ -445,8 +445,8 @@
   justify-content: center;
   position: relative;
   background-image:
-    linear-gradient(var(--border-subtle) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
   background-size: 40px 40px;
   background-position: center center;
   mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
@@ -454,11 +454,11 @@
 
 .history-panel {
   height: 140px;
-  border-top: 1px solid var(--border-subtle);
+  border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   padding: 0 1.5rem;
-  background: var(--bg-panel);
+  background: var(--card);
 }
 
 /* Old Sidebar styles removed */
@@ -757,8 +757,8 @@
 
 .right-sidebar {
   width: 300px;
-  border-left: 1px solid var(--border-subtle);
-  background: var(--bg-panel);
+  border-left: 1px solid var(--border);
+  background: var(--card);
   display: flex;
   flex-direction: column;
 }
@@ -774,8 +774,8 @@
 /* Studio Controls */
 .studio-controls {
   padding: 1.5rem;
-  border-bottom: 1px solid var(--border-subtle);
-  background: rgba(19, 19, 22, 0.5);
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
   display: flex;
   gap: 1.5rem;
   align-items: flex-start;

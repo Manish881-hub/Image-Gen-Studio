@@ -15,9 +15,9 @@ export function AppSidebar() {
     return (
         <Sidebar className="border-r border-border bg-sidebar">
             <SidebarHeader className="p-4 border-b border-border flex flex-row items-center justify-between">
-                <div className="flex items-center gap-2 font-bold text-lg tracking-tight">
+                <div className="flex items-center gap-2 font-bold text-lg tracking-tight text-sidebar-foreground">
                     <Sparkles className="text-purple-500" size={20} />
-                    <span>Aether<span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">Studio</span></span>
+                    <span>Aether<span className="text-sidebar-foreground/70">Studio</span></span>
                 </div>
                 <ModeToggle />
             </SidebarHeader>
@@ -29,7 +29,7 @@ export function AppSidebar() {
                         <SidebarMenu>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
-                                    <NavLink to="/" end className={({ isActive }) => isActive ? "bg-accent/10 text-accent font-medium" : ""}>
+                                    <NavLink to="/" end className={({ isActive }) => isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""}>
                                         <Sparkles />
                                         <span>Studio</span>
                                     </NavLink>
@@ -37,7 +37,7 @@ export function AppSidebar() {
                             </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
-                                    <NavLink to="/dashboard" className={({ isActive }) => isActive ? "bg-accent/10 text-accent font-medium" : ""}>
+                                    <NavLink to="/dashboard" className={({ isActive }) => isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""}>
                                         <LayoutDashboard />
                                         <span>Dashboard</span>
                                     </NavLink>
@@ -45,7 +45,7 @@ export function AppSidebar() {
                             </SidebarMenuItem>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
-                                    <NavLink to="/chat" className={({ isActive }) => isActive ? "bg-accent/10 text-accent font-medium" : ""}>
+                                    <NavLink to="/chat" className={({ isActive }) => isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : ""}>
                                         <MessageSquare />
                                         <span>Chat</span>
                                     </NavLink>
