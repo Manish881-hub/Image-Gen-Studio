@@ -2,9 +2,10 @@ import * as React from "react"
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   Sparkles, LayoutDashboard, MessageSquare, UserCircle,
-  Settings, HelpCircle, ChevronRight
+  Settings, HelpCircle, ChevronUp, LogOut
 } from 'lucide-react'
 import { ModeToggle } from './mode-toggle'
+import { useUser, UserButton } from '@clerk/clerk-react'
 import {
   Sidebar,
   SidebarContent,
@@ -18,6 +19,13 @@ import {
   SidebarFooter,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 // AetherStudio navigation data
 const navMain = [
@@ -55,6 +63,7 @@ const navMain = [
 
 export function AppSidebar({ ...props }) {
   const location = useLocation()
+  const { user } = useUser()
 
   return (
     <Sidebar {...props}>
@@ -101,12 +110,50 @@ export function AppSidebar({ ...props }) {
       <SidebarFooter className="border-t border-sidebar-border p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <a href="https://github.com" target="_blank" rel="noopener noreferrer">
-                <HelpCircle className="size-4" />
-                <span>Help & Support</span>
-              </a>
-            </SidebarMenuButton>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="w-full justify-start gap-3 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <UserButton
+                    appearance={{
+                      elements: {
+                        avatarBox: "w-8 h-8 rounded-lg"
+                      }
+                    }}
+                  />
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">
+                      {user?.firstName || user?.username || 'User'}
+                    </span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {user?.primaryEmailAddress?.emailAddress || 'Pro Plan'}
+                    </span>
+                  </div>
+                  <ChevronUp className="ml-auto size-4" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
+                side="top"
+                align="start"
+                sideOffset={4}
+              >
+                <DropdownMenuItem asChild>
+                  <NavLink to="/profile" className="flex items-center gap-2">
+                    <UserCircle className="size-4" />
+                    <span>Profile</span>
+                  </NavLink>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                    <HelpCircle className="size-4" />
+                    <span>Help & Support</span>
+                  </a>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
