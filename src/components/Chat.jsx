@@ -35,6 +35,10 @@ export function Chat({ currentImage }) {
         setInput('');
         setIsLoading(true);
 
+        // Create a placeholder message for streaming
+        const botMsgId = Date.now() + 1;
+        setMessages(prev => [...prev, { id: botMsgId, role: 'bot', text: '' }]);
+
         try {
             // Construct Content Payload
             const content = [{ type: "text", text: input }];
@@ -52,41 +56,74 @@ export function Chat({ currentImage }) {
                 headers: {
                     "Authorization": `Bearer ${apiKey}`,
                     "Content-Type": "application/json",
-                    "HTTP-Referer": window.location.origin, // Required by OpenRouter for free tier logging
+                    "HTTP-Referer": window.location.origin,
                     "X-Title": "AetherStudio"
                 },
                 body: JSON.stringify({
-                    "model": "nvidia/nemotron-nano-12b-v2-vl:free",
+                    "model": "xiaomi/mimo-v2-flash:free",
+                    "stream": true,
                     "messages": [
                         ...messages.filter(m => m.role !== 'error').map(m => ({
                             role: m.role === 'bot' ? 'assistant' : 'user',
-                            content: m.text // Send history as text only to save tokens/complexity for now, or expand if needed
+                            content: m.text
                         })),
                         { role: "user", content: content }
                     ]
                 })
             });
 
-            const data = await response.json();
-
-            if (data.error) {
-                throw new Error(data.error.message || 'API Error');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || 'API Error');
             }
 
-            const botText = data.choices?.[0]?.message?.content || "I couldn't generate a response.";
+            // Handle streaming response
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedText = '';
 
-            setMessages(prev => [...prev, {
-                id: Date.now() + 1,
-                role: 'bot',
-                text: botText
-            }]);
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                const lines = chunk.split('\n');
+
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6);
+                        if (data === '[DONE]') continue;
+
+                        try {
+                            const parsed = JSON.parse(data);
+                            const content = parsed.choices?.[0]?.delta?.content;
+                            if (content) {
+                                accumulatedText += content;
+                                // Update the message in real-time
+                                setMessages(prev => prev.map(msg =>
+                                    msg.id === botMsgId ? { ...msg, text: accumulatedText } : msg
+                                ));
+                            }
+                        } catch (e) {
+                            // Skip malformed JSON chunks
+                        }
+                    }
+                }
+            }
+
+            // If no content was received, show a fallback message
+            if (!accumulatedText) {
+                setMessages(prev => prev.map(msg =>
+                    msg.id === botMsgId ? { ...msg, text: "I couldn't generate a response." } : msg
+                ));
+            }
 
         } catch (error) {
-            setMessages(prev => [...prev, {
-                id: Date.now() + 1,
-                role: 'error',
-                text: `Error: ${error.message}`
-            }]);
+            // Remove the empty bot message and add error message
+            setMessages(prev => [
+                ...prev.filter(msg => msg.id !== botMsgId),
+                { id: Date.now() + 2, role: 'error', text: `Error: ${error.message}` }
+            ]);
         } finally {
             setIsLoading(false);
         }
