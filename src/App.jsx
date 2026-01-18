@@ -7,8 +7,10 @@ import { Profile } from './components/Profile';
 import { Chat } from './components/Chat';
 import './App.css';
 import { ThemeProvider } from "./components/theme-provider"
+import { SplashScreen } from './components/SplashScreen';
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
 
   const [prompt, setPrompt] = useState('');
   const [aspectRatio, setAspectRatio] = useState('16:9'); // Default aspect ratio
@@ -22,7 +24,7 @@ function App() {
 
     setIsGenerating(true);
 
-    // Simulate network delay
+    // Start actual load immediately
     setTimeout(() => {
       // Determine image dimensions based on aspect ratio for better placeholders
       let width = 1024;
@@ -30,21 +32,24 @@ function App() {
       if (aspectRatio === '16:9') { width = 1600; height = 900; }
       else if (aspectRatio === '9:16') { width = 900; height = 1600; }
 
-      const seed = Math.floor(Math.random() * 1000);
-      const randomImage = `https://picsum.photos/seed/${seed}/${width}/${height}`;
+      const seed = Math.floor(Math.random() * 100000);
+      const encodedPrompt = encodeURIComponent(prompt);
+      // Using Pollinations.ai default model for better speed/reliability
+      const aiImage = `https://pollinations.ai/p/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
 
       const newImage = {
         id: Date.now(),
-        url: randomImage,
+        url: aiImage,
         prompt: prompt,
         aspectRatio: aspectRatio,
         timestamp: new Date().toISOString(),
       };
 
       setCurrentImage(newImage);
+      setCurrentImage(newImage);
       setHistory(prev => [newImage, ...prev]);
       setIsGenerating(false);
-    }, 2000); // 2s simulated generation time
+    }, 100); // Minimal delay to trigger state update
   };
 
   const handleSelectHistory = (image) => {
@@ -57,26 +62,30 @@ function App() {
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
       <BrowserRouter>
         <div className="app-container">
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={
-                <Studio
-                  prompt={prompt}
-                  setPrompt={setPrompt}
-                  aspectRatio={aspectRatio}
-                  setAspectRatio={setAspectRatio}
-                  onGenerate={handleGenerate}
-                  currentImage={currentImage}
-                  isGenerating={isGenerating}
-                  history={history}
-                  onSelectHistory={handleSelectHistory}
-                />
-              } />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="chat" element={<Chat />} />
-            </Route>
-          </Routes>
+          {showSplash ? (
+            <SplashScreen onComplete={() => setShowSplash(false)} />
+          ) : (
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route index element={
+                  <Studio
+                    prompt={prompt}
+                    setPrompt={setPrompt}
+                    aspectRatio={aspectRatio}
+                    setAspectRatio={setAspectRatio}
+                    onGenerate={handleGenerate}
+                    currentImage={currentImage}
+                    isGenerating={isGenerating}
+                    history={history}
+                    onSelectHistory={handleSelectHistory}
+                  />
+                } />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="profile" element={<Profile />} />
+                <Route path="chat" element={<Chat currentImage={currentImage} />} />
+              </Route>
+            </Routes>
+          )}
         </div>
       </BrowserRouter>
     </ThemeProvider>
