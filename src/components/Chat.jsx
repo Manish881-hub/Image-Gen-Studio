@@ -179,7 +179,7 @@ export function Chat({ currentImage }) {
                                 />
                             </div>
                             <p className="text-[10px] text-muted-foreground">
-                                Free model: allenai/molmo-2-8b:free
+                                Free model: xiaomi/mimo-v2-flash:free
                             </p>
                         </div>
                     )}
@@ -196,7 +196,7 @@ export function Chat({ currentImage }) {
                         <h3 className="font-semibold text-sm">Vision Assistant</h3>
                         <p className="text-xs text-green-400 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                            {isLoading ? 'Thinking...' : 'Molmo-2-8b (Free)'}
+                            {isLoading ? 'Thinking...' : 'Xiaomi Mimo-v2 (Free)'}
                         </p>
                     </div>
                 </div>
