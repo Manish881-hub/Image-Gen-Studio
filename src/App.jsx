@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { SignedIn, SignedOut, SignIn } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, SignIn, useUser } from '@clerk/clerk-react';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '../convex/_generated/api';
 import { Layout } from './components/Layout';
 import { Studio } from './components/Studio';
 import { Dashboard } from './components/Dashboard';
@@ -10,18 +12,29 @@ import './App.css';
 import { ThemeProvider } from "./components/theme-provider"
 import { SplashScreen } from './components/SplashScreen';
 
-function App() {
-  const [showSplash, setShowSplash] = useState(true);
-
+function AppContent() {
+  const { user } = useUser();
   const [prompt, setPrompt] = useState('');
-  const [aspectRatio, setAspectRatio] = useState('16:9'); // Default aspect ratio
+  const [aspectRatio, setAspectRatio] = useState('16:9');
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentImage, setCurrentImage] = useState(null);
-  const [history, setHistory] = useState([]);
+
+  // Convex queries and mutations
+  const saveImage = useMutation(api.images.saveImage);
+  const deleteImage = useMutation(api.images.deleteImage);
+  const images = useQuery(api.images.getImages,
+    user?.id ? { userId: user.id } : "skip"
+  );
+
+  // Convert Convex images to history format (add 'id' field from '_id')
+  const history = images?.map(img => ({
+    ...img,
+    id: img._id,
+  })) || [];
 
   // Free Image Generation using Pollinations.ai
-  const handleGenerate = () => {
-    if (!prompt) return;
+  const handleGenerate = async () => {
+    if (!prompt || !user?.id) return;
 
     setIsGenerating(true);
 
@@ -38,15 +51,23 @@ function App() {
     const aiImage = `https://gen.pollinations.ai/image/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
 
     const newImage = {
-      id: Date.now(),
       url: aiImage,
       prompt: prompt,
       aspectRatio: aspectRatio,
       timestamp: new Date().toISOString(),
     };
 
-    setCurrentImage(newImage);
-    setHistory(prev => [newImage, ...prev]);
+    // Save to Convex database
+    try {
+      await saveImage({
+        userId: user.id,
+        ...newImage,
+      });
+    } catch (error) {
+      console.error('Failed to save image:', error);
+    }
+
+    setCurrentImage({ ...newImage, id: Date.now() });
     setIsGenerating(false);
   };
 
@@ -55,6 +76,46 @@ function App() {
     setPrompt(image.prompt);
     setAspectRatio(image.aspectRatio);
   };
+
+  const handleDeleteHistory = async (imageId) => {
+    try {
+      await deleteImage({ imageId });
+      // If the deleted image is currently displayed, clear it
+      if (currentImage?.id === imageId) {
+        setCurrentImage(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete image:', error);
+    }
+  };
+
+  return (
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={
+          <Studio
+            prompt={prompt}
+            setPrompt={setPrompt}
+            aspectRatio={aspectRatio}
+            setAspectRatio={setAspectRatio}
+            onGenerate={handleGenerate}
+            currentImage={currentImage}
+            isGenerating={isGenerating}
+            history={history}
+            onSelectHistory={handleSelectHistory}
+            onDeleteHistory={handleDeleteHistory}
+          />
+        } />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="chat" element={<Chat currentImage={currentImage} />} />
+      </Route>
+    </Routes>
+  );
+}
+
+function App() {
+  const [showSplash, setShowSplash] = useState(true);
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
@@ -80,26 +141,7 @@ function App() {
 
               {/* Show the app when user is authenticated */}
               <SignedIn>
-                <Routes>
-                  <Route path="/" element={<Layout />}>
-                    <Route index element={
-                      <Studio
-                        prompt={prompt}
-                        setPrompt={setPrompt}
-                        aspectRatio={aspectRatio}
-                        setAspectRatio={setAspectRatio}
-                        onGenerate={handleGenerate}
-                        currentImage={currentImage}
-                        isGenerating={isGenerating}
-                        history={history}
-                        onSelectHistory={handleSelectHistory}
-                      />
-                    } />
-                    <Route path="dashboard" element={<Dashboard />} />
-                    <Route path="profile" element={<Profile />} />
-                    <Route path="chat" element={<Chat currentImage={currentImage} />} />
-                  </Route>
-                </Routes>
+                <AppContent />
               </SignedIn>
             </>
           )}
@@ -110,3 +152,4 @@ function App() {
 }
 
 export default App;
+

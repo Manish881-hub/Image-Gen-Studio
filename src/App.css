@@ -836,30 +836,91 @@
 
 .history-item {
   width: 100%;
-  aspect-ratio: 16/9;
-  /* Default */
   border-radius: var(--radius-md);
   overflow: hidden;
   cursor: pointer;
   border: 1px solid transparent;
   transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  background: var(--card);
 }
 
 .history-item:hover {
-  border-color: var(--accent-secondary);
+  border-color: var(--primary);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(109, 40, 217, 0.15);
 }
 
 .history-item img {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 16/9;
   object-fit: cover;
+}
+
+.history-item-prompt {
+  padding: 0.75rem;
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-top: 1px solid var(--border);
+}
+
+.history-item:hover .history-item-prompt {
+  color: var(--foreground);
+}
+
+/* History item image container for delete button positioning */
+.history-item-image-container {
+  position: relative;
+  width: 100%;
+}
+
+.history-item-image-container img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  display: block;
+}
+
+.history-item-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.history-item:hover .history-item-delete {
+  opacity: 1;
+}
+
+.history-item-delete:hover {
+  background: #ff4444;
+  color: white;
+  transform: scale(1.1);
 }
 
 .history-placeholder {
   padding: 2rem;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--muted-foreground);
   font-size: 0.9rem;
 }
 
