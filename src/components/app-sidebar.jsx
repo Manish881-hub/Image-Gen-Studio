@@ -148,10 +148,10 @@ export function AppSidebar({ ...props }) {
                   </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                  <NavLink to="/help" className="flex items-center gap-2">
                     <HelpCircle className="size-4" />
                     <span>Help & Support</span>
-                  </a>
+                  </NavLink>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
