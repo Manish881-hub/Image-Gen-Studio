@@ -7,7 +7,7 @@ export function Studio({
     prompt, setPrompt,
     aspectRatio, setAspectRatio,
     isGenerating, onGenerate,
-    currentImage, history, onSelectHistory
+    currentImage, history, onSelectHistory, onDeleteHistory
 }) {
     return (
         <div className="studio-layout">
@@ -26,8 +26,13 @@ export function Studio({
             </div>
 
             <aside className="right-sidebar glass">
-                <HistoryRail history={history} onSelect={onSelectHistory} />
+                <HistoryRail
+                    history={history}
+                    onSelect={onSelectHistory}
+                    onDelete={onDeleteHistory}
+                />
             </aside>
         </div>
     );
 }
+
