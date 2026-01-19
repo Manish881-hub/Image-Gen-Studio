@@ -5,7 +5,7 @@ import {
   Settings, HelpCircle, ChevronUp, LogOut
 } from 'lucide-react'
 import { ModeToggle } from './mode-toggle'
-import { useUser, UserButton } from '@clerk/clerk-react'
+import { useUser, UserButton, useClerk } from '@clerk/clerk-react'
 import {
   Sidebar,
   SidebarContent,
@@ -64,6 +64,7 @@ const navMain = [
 export function AppSidebar({ ...props }) {
   const location = useLocation()
   const { user } = useUser()
+  const { signOut } = useClerk()
 
   return (
     <Sidebar {...props}>
@@ -151,6 +152,14 @@ export function AppSidebar({ ...props }) {
                     <HelpCircle className="size-4" />
                     <span>Help & Support</span>
                   </a>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => signOut()}
+                  className="flex items-center gap-2 text-red-500 focus:text-red-500 cursor-pointer"
+                >
+                  <LogOut className="size-4" />
+                  <span>Sign Out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

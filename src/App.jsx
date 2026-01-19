@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { SignedIn, SignedOut, SignIn } from '@clerk/clerk-react';
 import { Layout } from './components/Layout';
 import { Studio } from './components/Studio';
 import { Dashboard } from './components/Dashboard';
@@ -62,26 +63,45 @@ function App() {
           {showSplash ? (
             <SplashScreen onComplete={() => setShowSplash(false)} />
           ) : (
-            <Routes>
-              <Route path="/" element={<Layout />}>
-                <Route index element={
-                  <Studio
-                    prompt={prompt}
-                    setPrompt={setPrompt}
-                    aspectRatio={aspectRatio}
-                    setAspectRatio={setAspectRatio}
-                    onGenerate={handleGenerate}
-                    currentImage={currentImage}
-                    isGenerating={isGenerating}
-                    history={history}
-                    onSelectHistory={handleSelectHistory}
+            <>
+              {/* Show Sign In page when user is not authenticated */}
+              <SignedOut>
+                <div className="auth-container">
+                  <SignIn
+                    appearance={{
+                      elements: {
+                        rootBox: "auth-box",
+                        card: "auth-card",
+                      }
+                    }}
                   />
-                } />
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="profile" element={<Profile />} />
-                <Route path="chat" element={<Chat currentImage={currentImage} />} />
-              </Route>
-            </Routes>
+                </div>
+              </SignedOut>
+
+              {/* Show the app when user is authenticated */}
+              <SignedIn>
+                <Routes>
+                  <Route path="/" element={<Layout />}>
+                    <Route index element={
+                      <Studio
+                        prompt={prompt}
+                        setPrompt={setPrompt}
+                        aspectRatio={aspectRatio}
+                        setAspectRatio={setAspectRatio}
+                        onGenerate={handleGenerate}
+                        currentImage={currentImage}
+                        isGenerating={isGenerating}
+                        history={history}
+                        onSelectHistory={handleSelectHistory}
+                      />
+                    } />
+                    <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="profile" element={<Profile />} />
+                    <Route path="chat" element={<Chat currentImage={currentImage} />} />
+                  </Route>
+                </Routes>
+              </SignedIn>
+            </>
           )}
         </div>
       </BrowserRouter>
