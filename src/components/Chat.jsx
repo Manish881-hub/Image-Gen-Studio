@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,10 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Send, Bot, User, Key, Settings } from "lucide-react";
 
-export function Chat({ currentImage }) {
-    const [messages, setMessages] = useState([
-        { id: 1, role: 'bot', text: 'Hello! Generate an image in the Studio, then ask me anything about it!' }
-    ]);
+export function Chat({ currentImage, messages, setMessages }) {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     // Initialize with env var if available, otherwise check localStorage
@@ -244,7 +241,7 @@ export function Chat({ currentImage }) {
                             placeholder="Ask about the image..."
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            className="bg-background/50 border-white/10"
+                            className="bg-black/40 border-white/10 text-foreground placeholder:text-muted-foreground"
                             disabled={isLoading}
                         />
                         <Button type="submit" size="icon" disabled={isLoading}>

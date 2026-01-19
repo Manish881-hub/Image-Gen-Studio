@@ -19,6 +19,11 @@ function AppContent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentImage, setCurrentImage] = useState(null);
 
+  // Chat messages state - lifted here to persist across navigation
+  const [chatMessages, setChatMessages] = useState([
+    { id: 1, role: 'bot', text: 'Hello! Generate an image in the Studio, then ask me anything about it!' }
+  ]);
+
   // Convex queries and mutations
   const saveImage = useMutation(api.images.saveImage);
   const deleteImage = useMutation(api.images.deleteImage);
@@ -108,7 +113,13 @@ function AppContent() {
         } />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="profile" element={<Profile />} />
-        <Route path="chat" element={<Chat currentImage={currentImage} />} />
+        <Route path="chat" element={
+          <Chat
+            currentImage={currentImage}
+            messages={chatMessages}
+            setMessages={setChatMessages}
+          />
+        } />
       </Route>
     </Routes>
   );
