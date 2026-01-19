@@ -9,4 +9,11 @@ export default defineSchema({
         aspectRatio: v.string(),
         timestamp: v.string(),
     }).index("by_user", ["userId"]),
+
+    chatMessages: defineTable({
+        userId: v.string(),
+        role: v.string(), // 'user', 'bot', or 'error'
+        text: v.string(),
+        timestamp: v.string(),
+    }).index("by_user", ["userId"]),
 });
