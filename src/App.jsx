@@ -19,17 +19,25 @@ function AppContent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [currentImage, setCurrentImage] = useState(null);
 
-  // Chat messages state - lifted here to persist across navigation
-  const [chatMessages, setChatMessages] = useState([
-    { id: 1, role: 'bot', text: 'Hello! Generate an image in the Studio, then ask me anything about it!' }
-  ]);
-
-  // Convex queries and mutations
+  // Convex queries and mutations for images
   const saveImage = useMutation(api.images.saveImage);
   const deleteImage = useMutation(api.images.deleteImage);
   const images = useQuery(api.images.getImages,
     user?.id ? { userId: user.id } : "skip"
   );
+
+  // Convex queries and mutations for chat
+  const saveChatMessage = useMutation(api.chat.saveMessage);
+  const clearChatMessages = useMutation(api.chat.clearMessages);
+  const chatMessagesFromDb = useQuery(api.chat.getMessages,
+    user?.id ? { userId: user.id } : "skip"
+  );
+
+  // Convert Convex chat messages to format with 'id' field
+  const chatMessages = chatMessagesFromDb?.map(msg => ({
+    ...msg,
+    id: msg._id,
+  })) || [{ id: 'welcome', role: 'bot', text: 'Hello! Generate an image in the Studio, then ask me anything about it!' }];
 
   // Convert Convex images to history format (add 'id' field from '_id')
   const history = images?.map(img => ({
@@ -117,7 +125,9 @@ function AppContent() {
           <Chat
             currentImage={currentImage}
             messages={chatMessages}
-            setMessages={setChatMessages}
+            onSaveMessage={saveChatMessage}
+            onClearMessages={clearChatMessages}
+            userId={user?.id}
           />
         } />
       </Route>

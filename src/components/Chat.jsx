@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Send, Bot, User, Key, Settings } from "lucide-react";
+import { Send, Bot, User, Settings, Trash2 } from "lucide-react";
 
-export function Chat({ currentImage, messages, setMessages }) {
+export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, userId }) {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     // Initialize with env var if available, otherwise check localStorage
@@ -22,23 +22,27 @@ export function Chat({ currentImage, messages, setMessages }) {
     const handleSend = async () => {
         if (!input.trim()) return;
         if (!apiKey) {
-            setMessages(prev => [...prev, { id: Date.now(), role: 'bot', text: 'Please enter your OpenRouter API Key in the settings to chat.' }]);
+            // Cannot save error message to DB if we don't have user ID potentially, so just show locally/alert
+            alert('Please enter your OpenRouter API Key in the settings to chat.');
             setShowSettings(true);
             return;
         }
 
-        const userMsg = { id: Date.now(), role: 'user', text: input };
-        setMessages(prev => [...prev, userMsg]);
+        const userText = input;
         setInput('');
         setIsLoading(true);
 
-        // Create a placeholder message for streaming
-        const botMsgId = Date.now() + 1;
-        setMessages(prev => [...prev, { id: botMsgId, role: 'bot', text: '' }]);
-
         try {
+            // Save user message to database
+            await onSaveMessage({
+                userId,
+                role: 'user',
+                text: userText,
+                timestamp: new Date().toISOString()
+            });
+
             // Construct Content Payload
-            const content = [{ type: "text", text: input }];
+            const content = [{ type: "text", text: userText }];
 
             // Add image if available
             if (currentImage?.url) {
@@ -58,7 +62,7 @@ export function Chat({ currentImage, messages, setMessages }) {
                 },
                 body: JSON.stringify({
                     "model": "xiaomi/mimo-v2-flash:free",
-                    "stream": true,
+                    "stream": false, // Disable streaming for simpler DB persistence for now
                     "messages": [
                         ...messages.filter(m => m.role !== 'error').map(m => ({
                             role: m.role === 'bot' ? 'assistant' : 'user',
@@ -74,57 +78,37 @@ export function Chat({ currentImage, messages, setMessages }) {
                 throw new Error(errorData.error?.message || 'API Error');
             }
 
-            // Handle streaming response
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let accumulatedText = '';
+            const data = await response.json();
+            const botResponse = data.choices[0]?.message?.content || "I couldn't generate a response.";
 
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                const chunk = decoder.decode(value, { stream: true });
-                const lines = chunk.split('\n');
-
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        const data = line.slice(6);
-                        if (data === '[DONE]') continue;
-
-                        try {
-                            const parsed = JSON.parse(data);
-                            const content = parsed.choices?.[0]?.delta?.content;
-                            if (content) {
-                                accumulatedText += content;
-                                // Update the message in real-time
-                                setMessages(prev => prev.map(msg =>
-                                    msg.id === botMsgId ? { ...msg, text: accumulatedText } : msg
-                                ));
-                            }
-                        } catch (e) {
-                            // Skip malformed JSON chunks
-                        }
-                    }
-                }
-            }
-
-            // If no content was received, show a fallback message
-            if (!accumulatedText) {
-                setMessages(prev => prev.map(msg =>
-                    msg.id === botMsgId ? { ...msg, text: "I couldn't generate a response." } : msg
-                ));
-            }
+            // Save bot response to database
+            await onSaveMessage({
+                userId,
+                role: 'bot',
+                text: botResponse,
+                timestamp: new Date().toISOString()
+            });
 
         } catch (error) {
-            // Remove the empty bot message and add error message
-            setMessages(prev => [
-                ...prev.filter(msg => msg.id !== botMsgId),
-                { id: Date.now() + 2, role: 'error', text: `Error: ${error.message}` }
-            ]);
+            console.error(error);
+            // Save error message to database
+            await onSaveMessage({
+                userId,
+                role: 'error',
+                text: `Error: ${error.message}`,
+                timestamp: new Date().toISOString()
+            });
         } finally {
             setIsLoading(false);
         }
     };
+
+    const handleClearChat = async () => {
+        if (window.confirm("Clear all chat history?")) {
+            await onClearMessages({ userId });
+        }
+    };
+
 
     return (
         <div className="flex h-full p-4 gap-4 animate-in fade-in duration-500">
@@ -153,14 +137,25 @@ export function Chat({ currentImage, messages, setMessages }) {
 
                 {/* Settings Panel Toggle */}
                 <Card className="p-4 bg-card/50 border-white/10">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2 text-sm font-medium">
                             <Settings size={16} />
                             <span>Settings</span>
                         </div>
-                        <Button variant="ghost" size="sm" onClick={() => setShowSettings(!showSettings)}>
-                            {showSettings ? 'Hide' : 'Edit'}
-                        </Button>
+                        <div className="flex gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 w-7 p-0 text-muted-foreground hover:text-red-400"
+                                onClick={handleClearChat}
+                                title="Clear Chat History"
+                            >
+                                <Trash2 size={14} />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={() => setShowSettings(!showSettings)}>
+                                {showSettings ? 'Hide' : 'Edit'}
+                            </Button>
+                        </div>
                     </div>
 
                     {showSettings && (
