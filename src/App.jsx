@@ -7,6 +7,7 @@ import { Layout } from './components/Layout';
 import { Studio } from './components/Studio';
 import { Dashboard } from './components/Dashboard';
 import { Profile } from './components/Profile';
+import { HelpSupport } from './components/HelpSupport';
 import { Chat } from './components/Chat';
 import './App.css';
 import { ThemeProvider } from "./components/theme-provider"
@@ -16,7 +17,15 @@ function AppContent() {
   const { user } = useUser();
   const [prompt, setPrompt] = useState('');
   const [aspectRatio, setAspectRatio] = useState('16:9');
+
+  // Advanced Settings State
+  const [negativePrompt, setNegativePrompt] = useState('');
+  const [numImages, setNumImages] = useState(1);
+  const [steps, setSteps] = useState(30);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(''); // For "1 of 4" status
+
   const [currentImage, setCurrentImage] = useState(null);
 
   // Convex queries and mutations for images
@@ -50,6 +59,7 @@ function AppContent() {
     if (!prompt || !user?.id) return;
 
     setIsGenerating(true);
+    setGenerationProgress('Starting generation...');
 
     // Determine image dimensions based on aspect ratio
     let width = 1024;
@@ -57,50 +67,70 @@ function AppContent() {
     if (aspectRatio === '16:9') { width = 1600; height = 900; }
     else if (aspectRatio === '9:16') { width = 900; height = 1600; }
 
-    const seed = Math.floor(Math.random() * 100000);
-    const encodedPrompt = encodeURIComponent(prompt);
-
-    // Using the NEW Pollinations.ai endpoint (gen.pollinations.ai)
-    const aiImage = `https://gen.pollinations.ai/image/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
-
-    const newImage = {
-      url: aiImage,
-      prompt: prompt,
-      aspectRatio: aspectRatio,
-      timestamp: new Date().toISOString(),
-    };
-
-    // Save to Convex database
-    try {
-      await saveImage({
-        userId: user.id,
-        ...newImage,
-      });
-    } catch (error) {
-      console.error('Failed to save image:', error);
+    // Prepare prompt
+    let finalPrompt = prompt;
+    if (negativePrompt) {
+      finalPrompt += ` --no ${negativePrompt}`;
     }
 
-    setCurrentImage({ ...newImage, id: Date.now() });
-    setIsGenerating(false);
-  };
-
-  const handleSelectHistory = (image) => {
-    setCurrentImage(image);
-    setPrompt(image.prompt);
-    setAspectRatio(image.aspectRatio);
-  };
-
-  const handleDeleteHistory = async (imageId) => {
     try {
-      await deleteImage({ imageId });
-      // If the deleted image is currently displayed, clear it
-      if (currentImage?.id === imageId) {
-        setCurrentImage(null);
+      for (let i = 0; i < numImages; i++) {
+        if (numImages > 1) {
+          setGenerationProgress(`Generating ${i + 1} of ${numImages}...`);
+        }
+
+        const seed = Math.floor(Math.random() * 1000000) + i; // Ensure different seeds
+        // Using the primary Pollinations endpoint which redirects/handles requests better
+        const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(finalPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+
+        // const response = await fetch(imageUrl);
+        // const blob = await response.blob();
+        // In a real app we'd upload this blob. For now, Pollinations URL is persistent enough for MVP or we rely on it.
+        // Removing strict fetch check to avoid CORS/429 blocking the UI flow.
+
+        const newImage = {
+          url: imageUrl,
+          prompt: finalPrompt,
+          aspectRatio,
+          timestamp: new Date().toISOString()
+        };
+
+        setCurrentImage(newImage);
+
+        // Save to Convex
+        await saveImage({
+          userId: user.id,
+          url: imageUrl,
+          prompt: finalPrompt,
+          aspectRatio: aspectRatio,
+          timestamp: new Date().toISOString()
+        });
       }
     } catch (error) {
-      console.error('Failed to delete image:', error);
+      console.error("Generation failed:", error);
+      alert("Failed to generate image. Please try again.");
+    } finally {
+      setIsGenerating(false);
+      setGenerationProgress('');
     }
   };
+
+  const handleSelectHistory = (historyItem) => {
+    setCurrentImage(historyItem);
+    // Optionally restore prompt settings?
+    // setPrompt(historyItem.prompt); 
+  };
+
+  const handleDeleteHistory = async (id) => {
+    try {
+      await deleteImage({ imageId: id });
+      if (currentImage?.id === id) {
+        setCurrentImage(null);
+      }
+    } catch (e) {
+      console.error("Failed to delete", e);
+    }
+  }
 
   return (
     <Routes>
@@ -111,9 +141,21 @@ function AppContent() {
             setPrompt={setPrompt}
             aspectRatio={aspectRatio}
             setAspectRatio={setAspectRatio}
+
+            // Advanced props
+            negativePrompt={negativePrompt}
+            setNegativePrompt={setNegativePrompt}
+            numImages={numImages}
+            setNumImages={setNumImages}
+            steps={steps}
+            setSteps={setSteps}
+            showAdvanced={showAdvanced}
+            setShowAdvanced={setShowAdvanced}
+            generationProgress={generationProgress}
+
+            isGenerating={isGenerating}
             onGenerate={handleGenerate}
             currentImage={currentImage}
-            isGenerating={isGenerating}
             history={history}
             onSelectHistory={handleSelectHistory}
             onDeleteHistory={handleDeleteHistory}
@@ -121,6 +163,7 @@ function AppContent() {
         } />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="help" element={<HelpSupport />} />
         <Route path="chat" element={
           <Chat
             currentImage={currentImage}

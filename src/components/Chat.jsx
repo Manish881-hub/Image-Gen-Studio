@@ -22,7 +22,6 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
     const handleSend = async () => {
         if (!input.trim()) return;
         if (!apiKey) {
-            // Cannot save error message to DB if we don't have user ID potentially, so just show locally/alert
             alert('Please enter your OpenRouter API Key in the settings to chat.');
             setShowSettings(true);
             return;
@@ -32,8 +31,14 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
         setInput('');
         setIsLoading(true);
 
+        // Model Priorities
+        const MODELS = {
+            PRIMARY: "google/gemini-2.0-flash-exp:free",
+            SECONDARY: "meta-llama/llama-3.2-11b-vision-instruct:free",
+            FALLBACK: "meta-llama/llama-3.2-3b-instruct:free"
+        };
+
         try {
-            // Save user message to database
             await onSaveMessage({
                 userId,
                 role: 'user',
@@ -41,47 +46,70 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
                 timestamp: new Date().toISOString()
             });
 
-            // Construct Content Payload
-            const content = [{ type: "text", text: userText }];
+            const callApi = async (model, includeImage) => {
+                const content = [{ type: "text", text: userText }];
+                if (includeImage && currentImage?.url) {
+                    content.push({
+                        type: "image_url",
+                        image_url: { url: currentImage.url }
+                    });
+                }
 
-            // Add image if available
-            if (currentImage?.url) {
-                content.push({
-                    type: "image_url",
-                    image_url: { url: currentImage.url }
+                return fetch("https://openrouter.ai/api/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${apiKey}`,
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": window.location.origin,
+                        "X-Title": "AetherStudio"
+                    },
+                    body: JSON.stringify({
+                        "model": model,
+                        "stream": false,
+                        "messages": [
+                            ...messages.filter(m => m.role !== 'error').map(m => ({
+                                role: m.role === 'bot' ? 'assistant' : 'user',
+                                content: m.text
+                            })),
+                            { role: "user", content: content }
+                        ]
+                    })
                 });
+            };
+
+            let response;
+            let usedFallback = false;
+
+            // Attempt 1: Gemini 2.0 Flash
+            try {
+                response = await callApi(MODELS.PRIMARY, true);
+                if (!response.ok) throw new Error(`Primary failed: ${response.status}`);
+            } catch (err) {
+                console.warn(err.message);
+                // Attempt 2: Llama 3.2 Vision
+                try {
+                    response = await callApi(MODELS.SECONDARY, true);
+                    if (!response.ok) throw new Error(`Secondary failed: ${response.status}`);
+                } catch (err2) {
+                    console.warn(err2.message);
+                    // Attempt 3: Llama 3.2 Text Only
+                    usedFallback = true;
+                    response = await callApi(MODELS.FALLBACK, false);
+                }
             }
 
-            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${apiKey}`,
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": window.location.origin,
-                    "X-Title": "AetherStudio"
-                },
-                body: JSON.stringify({
-                    "model": "xiaomi/mimo-v2-flash:free",
-                    "stream": false, // Disable streaming for simpler DB persistence for now
-                    "messages": [
-                        ...messages.filter(m => m.role !== 'error').map(m => ({
-                            role: m.role === 'bot' ? 'assistant' : 'user',
-                            content: m.text
-                        })),
-                        { role: "user", content: content }
-                    ]
-                })
-            });
-
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || 'API Error');
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.error?.message || `All models failed (Status ${response.status})`);
             }
 
             const data = await response.json();
-            const botResponse = data.choices[0]?.message?.content || "I couldn't generate a response.";
+            let botResponse = data.choices[0]?.message?.content || "I couldn't generate a response.";
 
-            // Save bot response to database
+            if (usedFallback) {
+                botResponse += "\n\n*(Note: Image analysis unavailable due to high traffic, responded using text-only model)*";
+            }
+
             await onSaveMessage({
                 userId,
                 role: 'bot',
@@ -91,11 +119,10 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
 
         } catch (error) {
             console.error(error);
-            // Save error message to database
             await onSaveMessage({
                 userId,
                 role: 'error',
-                text: `Error: ${error.message}`,
+                text: `Error: ${error.message}. Please try again later.`,
                 timestamp: new Date().toISOString()
             });
         } finally {
@@ -171,7 +198,7 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
                                 />
                             </div>
                             <p className="text-[10px] text-muted-foreground">
-                                Free model: xiaomi/mimo-v2-flash:free
+                                Free model: Auto-Switching (Gemini 2.0 / Llama 3.2)
                             </p>
                         </div>
                     )}
@@ -188,7 +215,7 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
                         <h3 className="font-semibold text-sm">Vision Assistant</h3>
                         <p className="text-xs text-green-400 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                            {isLoading ? 'Thinking...' : 'Xiaomi Mimo-v2 (Free)'}
+                            {isLoading ? 'Thinking...' : 'AI Assistant (Auto-Switching)'}
                         </p>
                     </div>
                 </div>
