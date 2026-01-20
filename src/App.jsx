@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { SignedIn, SignedOut, SignIn, useUser } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { Layout } from './components/Layout';
@@ -9,9 +9,11 @@ import { Dashboard } from './components/Dashboard';
 import { Profile } from './components/Profile';
 import { HelpSupport } from './components/HelpSupport';
 import { Chat } from './components/Chat';
+import { Gallery } from './components/Gallery';
 import './App.css';
 import { ThemeProvider } from "./components/theme-provider"
 import { SplashScreen } from './components/SplashScreen';
+import { LandingPage } from './components/LandingPage';
 
 function AppContent() {
   const { user } = useUser();
@@ -163,6 +165,7 @@ function AppContent() {
         } />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="gallery" element={<Gallery />} />
         <Route path="help" element={<HelpSupport />} />
         <Route path="chat" element={
           <Chat
@@ -191,16 +194,7 @@ function App() {
             <>
               {/* Show Sign In page when user is not authenticated */}
               <SignedOut>
-                <div className="auth-container">
-                  <SignIn
-                    appearance={{
-                      elements: {
-                        rootBox: "auth-box",
-                        card: "auth-card",
-                      }
-                    }}
-                  />
-                </div>
+                <LandingPage />
               </SignedOut>
 
               {/* Show the app when user is authenticated */}
