@@ -2,7 +2,7 @@ import * as React from "react"
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   Sparkles, LayoutDashboard, MessageSquare, UserCircle,
-  Settings, HelpCircle, ChevronUp, LogOut
+  Settings, HelpCircle, ChevronUp, LogOut, Grid3X3
 } from 'lucide-react'
 import { ModeToggle } from './mode-toggle'
 import { useUser, UserButton, useClerk } from '@clerk/clerk-react'
@@ -41,6 +41,11 @@ const navMain = [
         title: "Chat",
         url: "/chat",
         icon: MessageSquare,
+      },
+      {
+        title: "Gallery",
+        url: "/gallery",
+        icon: Grid3X3,
       },
     ],
   },
