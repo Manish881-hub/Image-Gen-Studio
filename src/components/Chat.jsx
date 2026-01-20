@@ -10,14 +10,14 @@ import { Send, Bot, User, Settings, Trash2 } from "lucide-react";
 export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, userId }) {
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    // Initialize with env var if available, otherwise check localStorage
-    const [apiKey, setApiKey] = useState(() => import.meta.env.VITE_OPENROUTER_API_KEY || localStorage.getItem('openrouter_key') || '');
+    // Initialize with env var if available, otherwise check sessionStorage
+    const [apiKey, setApiKey] = useState(() => import.meta.env.VITE_OPENROUTER_API_KEY || sessionStorage.getItem('openrouter_key') || '');
     const [showSettings, setShowSettings] = useState(!apiKey);
 
     const handleSaveKey = (e) => {
         const key = e.target.value;
         setApiKey(key);
-        localStorage.setItem('openrouter_key', key);
+        sessionStorage.setItem('openrouter_key', key);
     };
 
     const handleSend = async () => {
