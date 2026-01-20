@@ -2,7 +2,7 @@
 
 A premium AI-powered image generation studio built with React, featuring real-time database persistence and authentication.
 
-![AetherStudio Demo](https://via.placeholder.com/800x400?text=AetherStudio+Demo)
+![AetherStudio Demo](public/assets/landing-preview.png)
 
 ## ✨ Features
 
