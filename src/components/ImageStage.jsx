@@ -4,6 +4,24 @@ import { Download, Share2, RefreshCw } from 'lucide-react';
 export function ImageStage({ currentImage, isGenerating }) {
     const [imageError, setImageError] = useState(false);
 
+    const handleDownload = async () => {
+        try {
+            const response = await fetch(currentImage.url);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `aether-${currentImage.prompt ? currentImage.prompt.slice(0, 20).replace(/\s+/g, '-') : 'creation'}-${Date.now()}.jpg`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Download failed:', error);
+            alert('Failed to download image.');
+        }
+    };
+
     useEffect(() => {
         setImageError(false);
     }, [currentImage?.url]);
@@ -27,7 +45,7 @@ export function ImageStage({ currentImage, isGenerating }) {
                             />
                             <div className="image-overlay">
                                 <div className="action-bar glass">
-                                    <button className="icon-btn" title="Download" onClick={() => window.open(currentImage.url, '_blank')}>
+                                    <button className="icon-btn" title="Download" onClick={handleDownload}>
                                         <Download size={20} />
                                     </button>
                                     <button className="icon-btn" title="Share">
