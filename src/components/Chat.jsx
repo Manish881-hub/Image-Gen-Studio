@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { popularPrompts, CHAT_MODELS } from '../lib/constants';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Send, Bot, User, Settings, Trash2 } from "lucide-react";
@@ -32,11 +33,7 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
         setIsLoading(true);
 
         // Model Priorities
-        const MODELS = {
-            PRIMARY: "google/gemini-2.0-flash-exp:free",
-            SECONDARY: "meta-llama/llama-3.2-11b-vision-instruct:free",
-            FALLBACK: "meta-llama/llama-3.2-3b-instruct:free"
-        };
+        const MODELS = CHAT_MODELS;
 
         try {
             await onSaveMessage({
@@ -107,7 +104,7 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
             let botResponse = data.choices[0]?.message?.content || "I couldn't generate a response.";
 
             if (usedFallback) {
-                botResponse += "\n\n*(Note: Image analysis unavailable due to high traffic, responded using text-only model)*";
+                botResponse += CHAT_MODELS.DISPLAY.FALLBACK_NOTE;
             }
 
             await onSaveMessage({
@@ -198,7 +195,7 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
                                 />
                             </div>
                             <p className="text-[10px] text-muted-foreground">
-                                Free model: Auto-Switching (Gemini 2.0 / Llama 3.2)
+                                Free model: {CHAT_MODELS.DISPLAY.DEFAULT}
                             </p>
                         </div>
                     )}
@@ -215,7 +212,7 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
                         <h3 className="font-semibold text-sm">Vision Assistant</h3>
                         <p className="text-xs text-green-400 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
-                            {isLoading ? 'Thinking...' : 'AI Assistant (Auto-Switching)'}
+                            {isLoading ? 'Thinking...' : CHAT_MODELS.DISPLAY.DEFAULT}
                         </p>
                     </div>
                 </div>

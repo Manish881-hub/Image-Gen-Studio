@@ -14,3 +14,13 @@ export const popularPrompts = [
 export const getRandomPrompt = () => {
     return popularPrompts[Math.floor(Math.random() * popularPrompts.length)];
 };
+
+export const CHAT_MODELS = {
+    PRIMARY: "google/gemini-2.0-flash-exp:free",
+    SECONDARY: "meta-llama/llama-3.2-11b-vision-instruct:free",
+    FALLBACK: "meta-llama/llama-3.2-3b-instruct:free",
+    DISPLAY: {
+        DEFAULT: "AI Assistant (Auto-Switching)",
+        FALLBACK_NOTE: "\n\n*(Note: Image analysis unavailable due to high traffic, responded using text-only model)*"
+    }
+};
