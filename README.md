@@ -121,7 +121,21 @@ Open http://localhost:5173 in your browser.
 
 ---
 
-## 📁 Project Structure
+## � App Screenshots
+
+| **Studio Interface** | **Vision Chat** |
+|:---:|:---:|
+| ![Studio](public/assets/studio-interface.png) | ![Chat](public/assets/chat-interface.png) |
+| *Create images with prompt & advanced settings* | *Chat with AI about your generated images* |
+
+| **Authentication** | **Profile & Settings** |
+|:---:|:---:|
+| ![Sign In](public/assets/sign-in.png) | ![Profile](public/assets/profile-settings.png) |
+| *Secure login via Clerk* | *Manage your account and preferences* |
+
+---
+
+## �📁 Project Structure
 
 ```
 studio/
