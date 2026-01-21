@@ -18,7 +18,15 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
         const key = e.target.value;
         setApiKey(key);
         sessionStorage.setItem('openrouter_key', key);
+        console.log("API Key updated by user");
     };
+
+    // Debug check
+    React.useEffect(() => {
+        console.log("Chat Component Mounted");
+        console.log("API Key Source:", import.meta.env.VITE_OPENROUTER_API_KEY ? "Env Var" : "Missing from Env");
+        console.log("Current API Key:", apiKey ? "Present (Starts with " + apiKey.substring(0, 5) + "...)" : "Missing");
+    }, []);
 
     const handleSend = async () => {
         if (!input.trim()) return;
@@ -97,7 +105,12 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                throw new Error(errorData.error?.message || `All models failed (Status ${response.status})`);
+                let msg = errorData.error?.message || `All models failed (Status ${response.status})`;
+
+                if (response.status === 402) msg = "Free tier limit reached. Please try again later or add credit.";
+                if (response.status === 429) msg = "AI is currently busy (Rate Limited). Please wait a moment.";
+
+                throw new Error(msg);
             }
 
             const data = await response.json();
@@ -115,11 +128,11 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
             });
 
         } catch (error) {
-            console.error(error);
+            console.error("Chat Error Details:", error);
             await onSaveMessage({
                 userId,
                 role: 'error',
-                text: `Error: ${error.message}. Please try again later.`,
+                text: `Error details: ${error.message}. Check console for more info.`,
                 timestamp: new Date().toISOString()
             });
         } finally {
