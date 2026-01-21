@@ -14,6 +14,11 @@ export function Studio({
     showAdvanced, setShowAdvanced,
     generationProgress,
 
+    // Model Props
+    model, setModel,
+    nvidiaApiKey, setNvidiaApiKey,
+    nvidiaEndpoint, setNvidiaEndpoint,
+
     isGenerating, onGenerate,
     currentImage, history, onSelectHistory, onDeleteHistory
 }) {
@@ -35,6 +40,13 @@ export function Studio({
                     showAdvanced={showAdvanced}
                     setShowAdvanced={setShowAdvanced}
                     generationProgress={generationProgress}
+
+                    model={model}
+                    setModel={setModel}
+                    nvidiaApiKey={nvidiaApiKey}
+                    setNvidiaApiKey={setNvidiaApiKey}
+                    nvidiaEndpoint={nvidiaEndpoint}
+                    setNvidiaEndpoint={setNvidiaEndpoint}
 
                     isGenerating={isGenerating}
                     onGenerate={onGenerate}

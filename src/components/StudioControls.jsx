@@ -1,7 +1,8 @@
 import React, { useRef } from 'react';
 import { Sparkles, Monitor, Maximize, Smartphone, ChevronDown, ChevronUp, Shuffle, Info } from 'lucide-react';
 import { Textarea } from "@/components/ui/textarea";
-import { popularPrompts, getRandomPrompt } from '../lib/constants';
+import { Input } from "@/components/ui/input";
+import { popularPrompts, getRandomPrompt, IMAGE_MODELS } from '../lib/constants';
 
 export function StudioControls({
     prompt, setPrompt,
@@ -13,7 +14,12 @@ export function StudioControls({
     numImages, setNumImages,
     steps, setSteps,
     showAdvanced, setShowAdvanced,
-    generationProgress
+    generationProgress,
+
+    // Model Props
+    model, setModel,
+    nvidiaApiKey, setNvidiaApiKey,
+    nvidiaEndpoint, setNvidiaEndpoint
 }) {
     const handleSurpriseMe = () => {
         setPrompt(getRandomPrompt());
@@ -22,6 +28,25 @@ export function StudioControls({
     return (
         <div className="studio-controls">
             <div className="control-section">
+                <div className="flex items-center justify-between mb-2">
+                    <label className="input-label mb-0">Model</label>
+                </div>
+                <div className="grid grid-cols-2 gap-2 mb-4">
+                    {Object.values(IMAGE_MODELS).map((m) => (
+                        <button
+                            key={m.id}
+                            onClick={() => setModel(m.id)}
+                            className={`p-2 text-left rounded-lg border transition-all ${model === m.id
+                                ? 'bg-purple-500/20 border-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.2)]'
+                                : 'bg-black/20 border-white/5 hover:bg-white/5'
+                                }`}
+                        >
+                            <div className="text-xs font-semibold mb-0.5 text-foreground">{m.name}</div>
+                            <div className="text-[10px] text-muted-foreground leading-tight">{m.description}</div>
+                        </button>
+                    ))}
+                </div>
+
                 <div className="flex items-center justify-between mb-2">
                     <label className="input-label mb-0">Prompt</label>
                     <button
@@ -143,6 +168,35 @@ export function StudioControls({
                                 className="w-full accent-purple-500 h-1 bg-white/10 rounded-lg appearance-none cursor-pointer"
                             />
                         </div>
+
+                        {/* Nvidia API Settings */}
+                        {model === IMAGE_MODELS.SD3_5.id && (
+                            <div className="space-y-3 pt-4 border-t border-white/5 animate-in slide-in-from-top-2">
+                                <div className="space-y-1">
+                                    <label className="text-xs text-purple-300 font-medium">NVIDIA API Key</label>
+                                    <Input
+                                        type="password"
+                                        value={nvidiaApiKey}
+                                        onChange={(e) => setNvidiaApiKey(e.target.value)}
+                                        placeholder="nvapi-..."
+                                        className="h-8 text-xs bg-black/40 border-purple-500/30 focus-visible:ring-purple-500/50"
+                                    />
+                                    <p className="text-[10px] text-muted-foreground">Required for SD 3.5 Large</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-xs text-muted-foreground">Endpoint URL</label>
+                                    <Input
+                                        value={nvidiaEndpoint}
+                                        onChange={(e) => setNvidiaEndpoint(e.target.value)}
+                                        placeholder="https://..."
+                                        className="h-8 text-xs bg-black/20 font-mono"
+                                    />
+                                    <p className="text-[10px] text-muted-foreground">
+                                        Use <span className="font-mono text-purple-300 select-all">http://localhost:8000/v1/infer</span> for local NIM
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
