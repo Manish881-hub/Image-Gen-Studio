@@ -58,7 +58,7 @@ export function LandingPage() {
                         {/* Hero Badge */}
                         <div className="mb-6 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-xs font-medium text-purple-300 flex items-center gap-2">
                             <Sparkles size={12} />
-                            <span>Next-Gen AI Image Generation</span>
+                            <span>Powered by Stable Diffusion 3.5 Large</span>
                         </div>
 
                         {/* Hero Text */}
@@ -95,8 +95,8 @@ export function LandingPage() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl">
                             <FeatureCard
                                 icon={<Sparkles className="text-purple-400" />}
-                                title="AI Generation"
-                                desc="High-quality images powered by Pollinations AI."
+                                title="SD 3.5 Large"
+                                desc="State-of-the-art 8B parameter model by Stability AI."
                             />
                             <FeatureCard
                                 icon={<MessageSquare className="text-blue-400" />}
@@ -147,7 +147,7 @@ export function LandingPage() {
 
             {/* Footer */}
             <footer className="relative z-10 p-6 border-t border-white/5 text-center text-xs text-muted-foreground">
-                <p>© 2026 AetherStudio. Built by Manish Bhakti Sagar.</p>
+                <p>© 2026 AetherStudio. Built by Manish Bhakti Sagar. Powered by NVIDIA NIM.</p>
             </footer>
         </div>
     );
