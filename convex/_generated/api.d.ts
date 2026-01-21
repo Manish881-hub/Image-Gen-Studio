@@ -10,6 +10,7 @@
 
 import type * as chat from "../chat.js";
 import type * as images from "../images.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -20,6 +21,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   chat: typeof chat;
   images: typeof images;
+  users: typeof users;
 }>;
 
 /**
