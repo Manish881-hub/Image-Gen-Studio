@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
 import { useQuery, useMutation, useAction } from 'convex/react';
@@ -55,6 +55,19 @@ function AppContent() {
   const chatMessagesFromDb = useQuery(api.chat.getMessages,
     user?.id ? { userId: user.id } : "skip"
   );
+
+  // User profile and streak tracking
+  const recordLogin = useMutation(api.users.recordLogin);
+  const userProfile = useQuery(api.users.getUserProfile,
+    user?.id ? { clerkId: user.id } : "skip"
+  );
+
+  // Record login silently when user signs in
+  useEffect(() => {
+    if (user?.id) {
+      recordLogin({ clerkId: user.id }).catch(console.error);
+    }
+  }, [user?.id]);
 
   // Convert Convex chat messages to format with 'id' field
   const chatMessages = chatMessagesFromDb?.map(msg => ({
