@@ -2,10 +2,12 @@ import * as React from "react"
 import { NavLink, useLocation } from 'react-router-dom'
 import {
   Sparkles, LayoutDashboard, MessageSquare, UserCircle,
-  Settings, HelpCircle, ChevronUp, LogOut, Grid3X3
+  Settings, HelpCircle, ChevronUp, LogOut, Grid3X3, Flame
 } from 'lucide-react'
 import { ModeToggle } from './mode-toggle'
 import { useUser, UserButton, useClerk } from '@clerk/clerk-react'
+import { useQuery } from 'convex/react'
+import { api } from '../../convex/_generated/api'
 import {
   Sidebar,
   SidebarContent,
@@ -71,6 +73,11 @@ export function AppSidebar({ ...props }) {
   const { user } = useUser()
   const { signOut } = useClerk()
 
+  // Get user profile with streak data
+  const userProfile = useQuery(api.users.getUserProfile,
+    user?.id ? { clerkId: user.id } : "skip"
+  )
+
   return (
     <Sidebar {...props}>
       <SidebarHeader className="p-4 border-b border-sidebar-border">
@@ -114,6 +121,20 @@ export function AppSidebar({ ...props }) {
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-2">
+        {/* Streak Badge */}
+        {userProfile && userProfile.currentStreak > 0 && (
+          <div className="flex items-center justify-center gap-2 py-2 mb-2 rounded-lg bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-500/30">
+            <Flame className="size-5 text-orange-500" />
+            <span className="text-sm font-semibold text-orange-400">
+              Day {userProfile.currentStreak}
+            </span>
+            {userProfile.longestStreak > userProfile.currentStreak && (
+              <span className="text-xs text-muted-foreground">
+                (Best: {userProfile.longestStreak})
+              </span>
+            )}
+          </div>
+        )}
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
