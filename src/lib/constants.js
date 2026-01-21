@@ -15,12 +15,29 @@ export const getRandomPrompt = () => {
     return popularPrompts[Math.floor(Math.random() * popularPrompts.length)];
 };
 
+export const IMAGE_MODELS = {
+    POLLINATIONS: {
+        id: 'pollinations',
+        name: 'Pollinations AI (Free)',
+        description: 'Great for quick ideas and testing. No key required.',
+        type: 'url'
+    },
+    SD3_5: {
+        id: 'sd3.5',
+        name: 'Stable Diffusion 3 Medium (NVIDIA)',
+        description: 'State-of-the-art quality. Requires API Key.',
+        type: 'api',
+        defaultEndpoint: 'https://ai.api.nvidia.com/v1/genai/stabilityai/stable-diffusion-3-medium',
+        localEndpoint: 'http://localhost:8000/v1/infer'
+    }
+};
+
 export const CHAT_MODELS = {
-    PRIMARY: "google/gemini-2.0-flash-exp:free",
-    SECONDARY: "meta-llama/llama-3.2-11b-vision-instruct:free",
-    FALLBACK: "meta-llama/llama-3.2-3b-instruct:free",
+    PRIMARY: "google/gemini-2.0-flash-exp:free",      // Fast, usually works
+    SECONDARY: "google/gemini-2.0-pro-exp-02-05:free", // Backup Vision
+    FALLBACK: "meta-llama/llama-3-8b-instruct:free",   // Backup Text (Lightweight)
     DISPLAY: {
         DEFAULT: "AI Assistant (Auto-Switching)",
-        FALLBACK_NOTE: "\n\n*(Note: Image analysis unavailable due to high traffic, responded using text-only model)*"
+        FALLBACK_NOTE: "\n\n*(Note: Vision unavailable, switched to text-only mode)*"
     }
 };
