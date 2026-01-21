@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { SignedIn, SignedOut, useUser } from '@clerk/clerk-react';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery, useMutation, useAction } from 'convex/react';
 import { api } from '../convex/_generated/api';
 import { Layout } from './components/Layout';
 import { Studio } from './components/Studio';
@@ -13,7 +13,9 @@ import { Gallery } from './components/Gallery';
 import './App.css';
 import { ThemeProvider } from "./components/theme-provider"
 import { SplashScreen } from './components/SplashScreen';
+
 import { LandingPage } from './components/LandingPage';
+import { IMAGE_MODELS } from './lib/constants';
 
 function AppContent() {
   const { user } = useUser();
@@ -28,11 +30,21 @@ function AppContent() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState(''); // For "1 of 4" status
 
+  // Model & API State
+  const [model, setModel] = useState(IMAGE_MODELS.POLLINATIONS.id);
+  const [nvidiaApiKey, setNvidiaApiKey] = useState(() => import.meta.env.VITE_NVIDIA_API_KEY || sessionStorage.getItem('nvidia_key') || '');
+  const [nvidiaEndpoint, setNvidiaEndpoint] = useState(IMAGE_MODELS.SD3_5.defaultEndpoint);
+
+  // Save key to session storage when changed
+  if (nvidiaApiKey) sessionStorage.setItem('nvidia_key', nvidiaApiKey);
+
   const [currentImage, setCurrentImage] = useState(null);
 
   // Convex queries and mutations for images
+  // Convex queries and mutations for images
   const saveImage = useMutation(api.images.saveImage);
   const deleteImage = useMutation(api.images.deleteImage);
+  const generateImageAction = useAction(api.images.generateSD35Image);
   const images = useQuery(api.images.getImages,
     user?.id ? { userId: user.id } : "skip"
   );
@@ -56,7 +68,6 @@ function AppContent() {
     id: img._id,
   })) || [];
 
-  // Free Image Generation using Pollinations.ai
   const handleGenerate = async () => {
     if (!prompt || !user?.id) return;
 
@@ -76,44 +87,79 @@ function AppContent() {
     }
 
     try {
-      for (let i = 0; i < numImages; i++) {
-        if (numImages > 1) {
-          setGenerationProgress(`Generating ${i + 1} of ${numImages}...`);
+      if (model === IMAGE_MODELS.POLLINATIONS.id) {
+        // --- POLLINATIONS LOGIC ---
+        for (let i = 0; i < numImages; i++) {
+          if (numImages > 1) setGenerationProgress(`Generating ${i + 1} of ${numImages}...`);
+
+          const seed = Math.floor(Math.random() * 1000000) + i;
+          const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(finalPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+
+          await handleImageResult(imageUrl, finalPrompt, aspectRatio);
         }
 
-        const seed = Math.floor(Math.random() * 1000000) + i; // Ensure different seeds
-        // Using the primary Pollinations endpoint which redirects/handles requests better
-        const imageUrl = `https://pollinations.ai/p/${encodeURIComponent(finalPrompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+      } else if (model === IMAGE_MODELS.SD3_5.id) {
+        // --- NVIDIA / SD3.5 LOGIC ---
+        if (!nvidiaApiKey && !nvidiaEndpoint.includes('localhost')) {
+          alert("Please enter a valid NVIDIA API Key in the settings.");
+          setIsGenerating(false);
+          return;
+        }
 
-        // const response = await fetch(imageUrl);
-        // const blob = await response.blob();
-        // In a real app we'd upload this blob. For now, Pollinations URL is persistent enough for MVP or we rely on it.
-        // Removing strict fetch check to avoid CORS/429 blocking the UI flow.
+        for (let i = 0; i < numImages; i++) {
+          if (numImages > 1) setGenerationProgress(`Generating ${i + 1} of ${numImages}...`);
 
-        const newImage = {
-          url: imageUrl,
-          prompt: finalPrompt,
-          aspectRatio,
-          timestamp: new Date().toISOString()
-        };
+          const seed = Math.floor(Math.random() * 1000000); // Random seed for new variation
 
-        setCurrentImage(newImage);
+          // Call Server-Side Action (Bypasses CORS)
+          const base64Img = await generateImageAction({
+            prompt: prompt,
+            apiKey: nvidiaApiKey,
+            endpoint: nvidiaEndpoint,
+            steps: steps,
+            seed: seed,
+            aspectRatio: aspectRatio
+          });
 
-        // Save to Convex
-        await saveImage({
-          userId: user.id,
-          url: imageUrl,
-          prompt: finalPrompt,
-          aspectRatio: aspectRatio,
-          timestamp: new Date().toISOString()
-        });
+          if (base64Img) {
+            const imageUrl = `data:image/jpeg;base64,${base64Img}`;
+            await handleImageResult(imageUrl, finalPrompt, aspectRatio);
+          } else {
+            throw new Error("No image data received from API");
+          }
+        }
       }
+
     } catch (error) {
       console.error("Generation failed:", error);
-      alert("Failed to generate image. Please try again.");
+      alert(`Failed to generate image: ${error.message}`);
     } finally {
       setIsGenerating(false);
       setGenerationProgress('');
+    }
+  };
+
+  const handleImageResult = async (url, prompt, ratio) => {
+    const newImage = {
+      url: url,
+      prompt: prompt,
+      aspectRatio: ratio,
+      timestamp: new Date().toISOString()
+    };
+    setCurrentImage(newImage);
+
+    // Save to Convex
+    // Note: Data URIs can be large. If this fails, the UI still updates.
+    try {
+      await saveImage({
+        userId: user.id,
+        url: url,
+        prompt: prompt,
+        aspectRatio: ratio,
+        timestamp: new Date().toISOString()
+      });
+    } catch (e) {
+      console.warn("Failed to save to history (likely too large):", e);
     }
   };
 
@@ -161,6 +207,13 @@ function AppContent() {
             history={history}
             onSelectHistory={handleSelectHistory}
             onDeleteHistory={handleDeleteHistory}
+
+            model={model}
+            setModel={setModel}
+            nvidiaApiKey={nvidiaApiKey}
+            setNvidiaApiKey={setNvidiaApiKey}
+            nvidiaEndpoint={nvidiaEndpoint}
+            setNvidiaEndpoint={setNvidiaEndpoint}
           />
         } />
         <Route path="dashboard" element={<Dashboard />} />
