@@ -276,8 +276,19 @@ export function Chat({ currentImage, messages, onSaveMessage, onClearMessages, u
                             className="bg-black/40 border-white/10 text-foreground placeholder:text-muted-foreground"
                             disabled={isLoading}
                         />
-                        <Button type="submit" size="icon" disabled={isLoading}>
+                        <Button type="submit" size="icon" disabled={isLoading} title="Send message">
                             <Send size={16} />
+                        </Button>
+                        <Button
+                            type="button"
+                            size="icon"
+                            variant="ghost"
+                            onClick={handleClearChat}
+                            disabled={isLoading}
+                            title="Clear chat history"
+                            className="text-muted-foreground hover:text-red-400"
+                        >
+                            <Trash2 size={16} />
                         </Button>
                     </form>
                 </div>
