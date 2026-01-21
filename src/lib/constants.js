@@ -33,9 +33,9 @@ export const IMAGE_MODELS = {
 };
 
 export const CHAT_MODELS = {
-    PRIMARY: "google/gemini-2.0-flash-exp:free",      // Fast, usually works
-    SECONDARY: "google/gemini-2.0-pro-exp-02-05:free", // Backup Vision
-    FALLBACK: "meta-llama/llama-3-8b-instruct:free",   // Backup Text (Lightweight)
+    PRIMARY: "meta-llama/llama-3.2-11b-vision-instruct:free",   // Vision model - Llama 3.2
+    SECONDARY: "qwen/qwen2.5-vl-7b-instruct:free",              // Backup Vision - Qwen VL
+    FALLBACK: "google/gemma-3-4b-it:free",                      // Backup Text (Lightweight)
     DISPLAY: {
         DEFAULT: "AI Assistant (Auto-Switching)",
         FALLBACK_NOTE: "\n\n*(Note: Vision unavailable, switched to text-only mode)*"
