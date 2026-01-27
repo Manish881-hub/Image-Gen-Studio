@@ -4,6 +4,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { popularPrompts, getRandomPrompt, IMAGE_MODELS } from '../lib/constants';
 
+// Trigger Vercel redeploy - 2026-01-27
+
 export function StudioControls({
     prompt, setPrompt,
     onGenerate, isGenerating,
