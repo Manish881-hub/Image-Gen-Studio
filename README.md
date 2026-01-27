@@ -194,6 +194,28 @@ npx convex deploy
 
 ---
 
+## 🐳 Run with Docker
+
+You can containerize the application using Docker.
+
+### 1. Build and Run
+
+```bash
+docker-compose up -d --build
+```
+This will start the application on `http://localhost:3000`.
+
+### 2. Verify Container Content
+
+![Docker Container Running](docs/images/docker-running.png)
+
+To stop the container:
+```bash
+docker-compose down
+```
+
+---
+
 ## 🤝 Contributing
 
 1. Fork the repository
